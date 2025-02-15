@@ -168,16 +168,28 @@ main.finalizado .vencedor .maoJogador{
   background-image: url("imgs/paus-pronto.png");
 }
 
-#botoes{
-  position: absolute;
-  right: 0.5em;
-  bottom: 0.5em;
-}
+
 
 
 .mostrar{
   transform: rotateY(180deg);
   transition: 1s;
+}
+
+#telaAposta{
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100svw;
+  height: 100svh;
+  background-color: red;
+}
+
+.mostrarTelaAposta{
+
+  display: flex !important;
+
 }
 
 

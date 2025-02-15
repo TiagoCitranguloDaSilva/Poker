@@ -32,7 +32,7 @@ const mesa = document.getElementById("mesa")
 var qtdeApostas = 0
 
 
-for(let c = 0; c < qtdeJogadores; c++){
+for (let c = 0; c < qtdeJogadores; c++) {
 
   let jogador = document.createElement("div")
   jogador.classList.add("jogador")
@@ -71,36 +71,20 @@ function novaRodada() {
   }
 
   darCartasJogadores()
-    
-  
-  let cartasJogadorPrincipal = elementosMaoJogadores[0].children
-  setTimeout(() => {cartasJogadorPrincipal[0].classList.add('mostrar')}, 700)
-  setTimeout(() => {cartasJogadorPrincipal[1].classList.add('mostrar')}, 800)
-
-  setTimeout(() => {
-    verificacoesCombinacoes()
-    mostrarCombinacaoMaisForte()
-  }, 900)
-
   darCartasComunitarias()
-  
-}
 
-function apostar(){
+  apostar().then((aposta) => {
+    segundaRodada(aposta)
+  })
 
-  qtdeApostas++
 
-  if(qtdeApostas == 1){
-    setTimeout(mostrarCartaComunitaria, 600)
-    setTimeout(mostrarCartaComunitaria, 700)
-    setTimeout(mostrarCartaComunitaria, 800)
-  }else if(qtdeApostas == 4){
-    finalizar()
-  }else{
-    mostrarCartaComunitaria()
-  }
+
+
+
+
 
 }
+
 
 function darCartasJogadores() {
 
@@ -163,7 +147,7 @@ function darCartasComunitarias() {
 
     cartasMesaAmostra = 0
 
-    let elementoCarta =  criarCartaVisualmente(cartaEscolhida[0], classes = [cartaEscolhida[1]])
+    let elementoCarta = criarCartaVisualmente(cartaEscolhida[0], classes = [cartaEscolhida[1]])
 
     mesaComunitaria.appendChild(elementoCarta)
   }
@@ -183,7 +167,7 @@ function mostrarCartaComunitaria() {
 function verificacoesCombinacoes() {
 
 
-  for(let jogador = 0; jogador < qtdeJogadores; jogador++){
+  for (let jogador = 0; jogador < qtdeJogadores; jogador++) {
 
 
 
@@ -214,7 +198,7 @@ function verificacoesCombinacoes() {
 
 
     let cartasJogador = []
-    
+
     for (let c = 0; c < cartasMesaAmostra; c++) {
       cartasJogador.push(cartasMesa[c])
     }
@@ -240,44 +224,44 @@ function verificacoesCombinacoes() {
     qtdeTrincas = temp[1][1]
     qtdeQuadras = temp[1][2]
 
-    if(qtdePares > 1){
+    if (qtdePares > 1) {
       existeDoisPares = true
     }
-    
-    if(qtdeTrincas > 0 && qtdePares > 0){
+
+    if (qtdeTrincas > 0 && qtdePares > 0) {
       existeFullHouse = true
     }
 
 
 
     temp = straightEStraightFlushRoyal(ordemHighCards)
-    if(temp[0]){
+    if (temp[0]) {
       existeStraight = true
       cartasStraight = temp[1].slice()
 
-      if(temp[2]){
+      if (temp[2]) {
         existeStraightFlush = true
         cartasStraightFlush = temp[3].slice()
 
-        if(temp[4]){
+        if (temp[4]) {
           existeRoyalFlush = true
           cartasRoyalFlush = temp[5].slice()
         }
       }
-      
+
     }
 
     temp = flush(ordemHighCards)
-    
-    if(temp[0]){
+
+    if (temp[0]) {
 
       existeFlush = true
       cartasFlush = temp[1]
 
     }
 
-    
-  
+
+
 
 
     // SALVANDO OS DADOS
@@ -306,7 +290,7 @@ function verificacoesCombinacoes() {
     ]
 
   }
-  
+
 
 }
 
@@ -325,7 +309,7 @@ function highCard(cartasJogador) {
 
   }
 
-  
+
 
   return [ordemDescrescente[0], ordemDescrescente]
 }
@@ -334,11 +318,11 @@ function paresTrincasQuadras(cartasJogador) {
 
   let cartasOrdenadas = []
 
-  for(let c = simboloCartas.length - 1; c >= 0; c--){
+  for (let c = simboloCartas.length - 1; c >= 0; c--) {
 
-    for(let d = 0; d < cartasJogador.length; d++){
+    for (let d = 0; d < cartasJogador.length; d++) {
 
-      if(simboloCartas[c] == cartasJogador[d][0]){
+      if (simboloCartas[c] == cartasJogador[d][0]) {
         cartasOrdenadas.push(cartasJogador[d])
       }
 
@@ -404,34 +388,34 @@ function paresTrincasQuadras(cartasJogador) {
 
 }
 
-function straightEStraightFlushRoyal(cartasOrdenadas){
+function straightEStraightFlushRoyal(cartasOrdenadas) {
 
   let cartasVerificacao = cartasOrdenadas.slice()
 
   let cartasArrumadas = []
 
-  
 
 
-  for(let c = 0; c < cartasOrdenadas.length; c++){
 
-    for(let d = 0; d < cartasVerificacao.length; d++){
+  for (let c = 0; c < cartasOrdenadas.length; c++) {
 
-      
-      if(cartasOrdenadas[c][0] == cartasVerificacao[d][0]){
+    for (let d = 0; d < cartasVerificacao.length; d++) {
+
+
+      if (cartasOrdenadas[c][0] == cartasVerificacao[d][0]) {
         let existe = false
 
 
-        for(let e = 0; e < cartasArrumadas.length; e++){
-          if(cartasArrumadas[e][0] == cartasVerificacao[d][0] ){
+        for (let e = 0; e < cartasArrumadas.length; e++) {
+          if (cartasArrumadas[e][0] == cartasVerificacao[d][0]) {
             cartasArrumadas[e][1].push(cartasVerificacao[d][1])
             existe = true
           }
         }
 
-        if(!existe){
+        if (!existe) {
           cartasArrumadas.push([cartasVerificacao[d][0], [cartasVerificacao[d][1]]])
-          
+
 
           cartasVerificacao.splice(d, 1)
         }
@@ -442,24 +426,24 @@ function straightEStraightFlushRoyal(cartasOrdenadas){
 
 
   }
-  if(cartasArrumadas.length < 5){
+  if (cartasArrumadas.length < 5) {
     return [false]
   }
 
-  for(c = 0; c < cartasArrumadas.length; c++){
+  for (c = 0; c < cartasArrumadas.length; c++) {
 
     let indiceCarta
     let cartasStraight = [cartasArrumadas[c]]
 
 
-    
+
 
     existeStraight = true
 
 
-    for(let e = 0; e < simboloCartas.length; e++){
+    for (let e = 0; e < simboloCartas.length; e++) {
 
-      if(cartasArrumadas[c][0] == simboloCartas[e]){
+      if (cartasArrumadas[c][0] == simboloCartas[e]) {
 
         indiceCarta = e
 
@@ -467,24 +451,24 @@ function straightEStraightFlushRoyal(cartasOrdenadas){
 
     }
 
-    for(let d = 1; d < 5; d++){
+    for (let d = 1; d < 5; d++) {
 
-      if(c + d >= cartasArrumadas.length || indiceCarta - d < 0){
+      if (c + d >= cartasArrumadas.length || indiceCarta - d < 0) {
         existeStraight = false
         break
       }
-      
-      if(cartasArrumadas[c + d][0] != simboloCartas[indiceCarta - d]){
+
+      if (cartasArrumadas[c + d][0] != simboloCartas[indiceCarta - d]) {
         existeStraight = false
-        
+
         break
-      }else{
+      } else {
         cartasStraight.push([cartasArrumadas[c + d][0], cartasArrumadas[c + d][1]])
       }
 
     }
 
-    if(existeStraight){
+    if (existeStraight) {
 
       let naipe
 
@@ -492,27 +476,27 @@ function straightEStraightFlushRoyal(cartasOrdenadas){
 
       let mesmoNaipe
 
-      
 
-      for(let naipePrimeiraCarta = 0; naipePrimeiraCarta < cartasStraight[0][1].length; naipePrimeiraCarta++){
+
+      for (let naipePrimeiraCarta = 0; naipePrimeiraCarta < cartasStraight[0][1].length; naipePrimeiraCarta++) {
 
         naipe = cartasStraight[0][1][naipePrimeiraCarta]
 
         straightFlush = [[cartasStraight[0][0], naipe]]
 
-        for(let cartasDoStraight = 1; cartasDoStraight < cartasStraight.length; cartasDoStraight++){
-          
+        for (let cartasDoStraight = 1; cartasDoStraight < cartasStraight.length; cartasDoStraight++) {
+
           mesmoNaipe = false
 
-          for(let naipeCartasStraight = 0; naipeCartasStraight < cartasStraight[cartasDoStraight][1].length; naipeCartasStraight++){
+          for (let naipeCartasStraight = 0; naipeCartasStraight < cartasStraight[cartasDoStraight][1].length; naipeCartasStraight++) {
 
-            if(cartasStraight[cartasDoStraight][1][naipeCartasStraight] == naipe){
+            if (cartasStraight[cartasDoStraight][1][naipeCartasStraight] == naipe) {
               straightFlush.push([cartasStraight[cartasDoStraight][0], naipe])
               mesmoNaipe = true
             }
 
           }
-          if(!mesmoNaipe){
+          if (!mesmoNaipe) {
             break
           }
 
@@ -523,16 +507,16 @@ function straightEStraightFlushRoyal(cartasOrdenadas){
 
       let retorno = [true, cartasStraight]
 
-      if(straightFlush.length == 5){
+      if (straightFlush.length == 5) {
 
-        if(straightFlush[0][0] == "A"){
+        if (straightFlush[0][0] == "A") {
           let royalFlush = straightFlush
           retorno.push(true, royalFlush)
-        }else{
+        } else {
           retorno.push(false, [])
         }
         retorno.push(true, straightFlush)
-      }else{
+      } else {
         retorno.push(false, [straightFlush])
       }
 
@@ -545,27 +529,27 @@ function straightEStraightFlushRoyal(cartasOrdenadas){
 
 }
 
-function flush(cartasJogador){
+function flush(cartasJogador) {
 
   let cartasVerificacao = cartasJogador.slice()
 
   let cartasOrganizadas = []
 
-  for(let c = 0; c < cartasJogador.length; c++){
+  for (let c = 0; c < cartasJogador.length; c++) {
 
-    for(let d = 0; d < cartasVerificacao.length; d++){
+    for (let d = 0; d < cartasVerificacao.length; d++) {
 
-      if(cartasJogador[c][0] == cartasVerificacao[d][0]){
+      if (cartasJogador[c][0] == cartasVerificacao[d][0]) {
 
         let jaExiste = false
 
-        for(let e = 0; e < cartasOrganizadas.length; e++){
-          if(cartasOrganizadas[e][0] == cartasVerificacao[d][0]){
+        for (let e = 0; e < cartasOrganizadas.length; e++) {
+          if (cartasOrganizadas[e][0] == cartasVerificacao[d][0]) {
             jaExiste = true
             cartasOrganizadas[e][1].push(cartasVerificacao[d][1])
           }
         }
-        if(!jaExiste){
+        if (!jaExiste) {
           cartasOrganizadas.push([cartasVerificacao[d][0], [cartasVerificacao[d][1]]])
           cartasVerificacao.splice(d, 1)
         }
@@ -576,23 +560,23 @@ function flush(cartasJogador){
   }
 
 
-  if(cartasOrganizadas.length < 5){
+  if (cartasOrganizadas.length < 5) {
     return [false]
   }
 
   let naipe
 
-  
-  for(let naipeCartaPrincipal = 0; naipeCartaPrincipal < cartasOrganizadas[0][1].length; naipeCartaPrincipal++){
-    
+
+  for (let naipeCartaPrincipal = 0; naipeCartaPrincipal < cartasOrganizadas[0][1].length; naipeCartaPrincipal++) {
+
     naipe = cartasOrganizadas[0][1][naipeCartaPrincipal]
     let flush = [[cartasOrganizadas[0][0], naipe]]
 
-    for(let outrasCartas = 1; outrasCartas < cartasOrganizadas.length; outrasCartas++){
+    for (let outrasCartas = 1; outrasCartas < cartasOrganizadas.length; outrasCartas++) {
 
-      for(let naipeOutrasCartas = 0; naipeOutrasCartas < cartasOrganizadas[outrasCartas][1].length; naipeOutrasCartas++){
+      for (let naipeOutrasCartas = 0; naipeOutrasCartas < cartasOrganizadas[outrasCartas][1].length; naipeOutrasCartas++) {
 
-        if(naipe == cartasOrganizadas[outrasCartas][1][naipeOutrasCartas]){
+        if (naipe == cartasOrganizadas[outrasCartas][1][naipeOutrasCartas]) {
           flush.push([cartasOrganizadas[outrasCartas][0], cartasOrganizadas[outrasCartas][1][naipeOutrasCartas]])
         }
 
@@ -600,9 +584,9 @@ function flush(cartasJogador){
 
     }
 
-    if(flush.length >=5){
+    if (flush.length >= 5) {
 
-      let retorno = flush.slice(0,5)
+      let retorno = flush.slice(0, 5)
 
       return [true, retorno]
 
@@ -615,27 +599,27 @@ function flush(cartasJogador){
 
 }
 
-function mostrarCombinacaoMaisForte(){
+function mostrarCombinacaoMaisForte() {
 
 
-  for(let c = 0; c < elementosMaoJogadores.length; c++){
+  for (let c = 0; c < elementosMaoJogadores.length; c++) {
     let elementoMao = elementosMaoJogadores[c].parentNode.querySelector(".combinacao")
     let achouCombinacao = false
 
-    for(let d = 0; d < dadosJogadores[c].length - 1; d++){
+    for (let d = 0; d < dadosJogadores[c].length - 1; d++) {
 
-      if(dadosJogadores[c][d][1]){
+      if (dadosJogadores[c][d][1]) {
         achouCombinacao = true
         combinacaoJogadores[c] = ordemCombinacoes[d]
-        if(elementosMaoJogadores[c].children[0].classList.contains("mostrar")){
+        if (elementosMaoJogadores[c].children[0].classList.contains("mostrar")) {
           elementoMao.innerText = ordemCombinacoes[d]
         }
         break
       }
 
     }
-    if(!achouCombinacao){
-      if(elementosMaoJogadores[c].children[0].classList.contains("mostrar")){
+    if (!achouCombinacao) {
+      if (elementosMaoJogadores[c].children[0].classList.contains("mostrar")) {
         elementoMao.innerText = "High Card"
       }
       combinacaoJogadores[c] = "High Card"
@@ -646,26 +630,26 @@ function mostrarCombinacaoMaisForte(){
 
 }
 
-function finalizar(){
+function finalizar() {
 
   let ordemGanhadores = []
 
-  for(let c = 0; c < ordemCombinacoes.length; c++){
+  for (let c = 0; c < ordemCombinacoes.length; c++) {
 
-    for(let d = 0; d < combinacaoJogadores.length; d++){
+    for (let d = 0; d < combinacaoJogadores.length; d++) {
 
-      if(ordemCombinacoes[c] == combinacaoJogadores[d]){
+      if (ordemCombinacoes[c] == combinacaoJogadores[d]) {
 
         let jaExiste = false
-        for(let e = 0; e < ordemGanhadores.length; e++){
+        for (let e = 0; e < ordemGanhadores.length; e++) {
 
-          if(ordemGanhadores[e][0] == combinacaoJogadores[d]){
+          if (ordemGanhadores[e][0] == combinacaoJogadores[d]) {
             jaExiste = true
             ordemGanhadores[e][1].push(d)
           }
         }
 
-        if(!jaExiste){
+        if (!jaExiste) {
           ordemGanhadores.push([ordemCombinacoes[c], [d]])
         }
       }
@@ -676,21 +660,21 @@ function finalizar(){
 
   elementosMaoJogadores.forEach(maoJogadores => {
 
-    
-    if(!maoJogadores.children[0].classList.contains('mostrar')){
-      setTimeout(()=>{maoJogadores.children[0].classList.add('mostrar')}, 300)
-      setTimeout(()=>{maoJogadores.children[1].classList.add('mostrar')}, 400)
-      setTimeout(()=>{
+
+    if (!maoJogadores.children[0].classList.contains('mostrar')) {
+      setTimeout(() => { maoJogadores.children[0].classList.add('mostrar') }, 300)
+      setTimeout(() => { maoJogadores.children[1].classList.add('mostrar') }, 400)
+      setTimeout(() => {
         verificacoesCombinacoes()
         mostrarCombinacaoMaisForte()
       }, 500)
 
     }
-    
+
 
   });
 
-  setInterval(()=>{
+  setInterval(() => {
     document.querySelector('main').classList.add('finalizado')
 
     ordemGanhadores[0][1].forEach(idJogador => {
@@ -698,6 +682,82 @@ function finalizar(){
     });
   }, 2000)
 
-  console.log(ordemGanhadores)
 
+}
+
+async function apostar() {
+  let aposta = []
+  let contagem = 0
+  while (contagem < qtdeJogadores) {
+    let apostaAtual = await realizarAposta(contagem);
+    if (apostaAtual) {
+      aposta.push(apostaAtual);
+      contagem++;
+      await new Promise(resolve => setTimeout(resolve, 1200))
+    }
+  }
+}
+
+function realizarAposta(idJogador) {
+
+  return new Promise((resolve, reject) => {
+    if (idJogador == 0) {
+      setTimeout(() => {
+        telaDeApostaUsuario()
+      let botaoAposta = document.querySelector("#botaoAposta")
+      botaoAposta.addEventListener("click", () => {
+
+        document.querySelector("#telaAposta").classList.remove("mostrarTelaAposta")
+        resolve("Eu apostei")
+      }, { once: true })
+      }, 1000)
+      
+    } else {
+      resolve("Apostado")
+
+    }
+  })
+
+}
+
+function telaDeApostaUsuario() {
+  document.querySelector("#telaAposta").classList.add("mostrarTelaAposta")
+}
+
+function segundaRodada(aposta) {
+  let cartasJogadorPrincipal = elementosMaoJogadores[0].children
+  setTimeout(() => { cartasJogadorPrincipal[0].classList.add('mostrar') }, 700)
+  setTimeout(() => { cartasJogadorPrincipal[1].classList.add('mostrar') }, 800)
+
+  setTimeout(() => {
+    verificacoesCombinacoes()
+    mostrarCombinacaoMaisForte()
+  }, 900)
+
+  setTimeout(() => { mostrarCartaComunitaria() }, 1500)
+  setTimeout(() => { mostrarCartaComunitaria() }, 1600)
+  setTimeout(() => { mostrarCartaComunitaria() }, 1700)
+  setTimeout(() => {
+    apostar().then((aposta) => {
+      terceiraRodada(aposta)
+    })
+  }, 2100)
+}
+
+function terceiraRodada(aposta){
+  setTimeout(() => { mostrarCartaComunitaria() }, 1000)
+  setTimeout(() => {
+    apostar().then((aposta) => {
+      quartaRodada(aposta)
+    })
+  }, 2100)
+}
+
+function quartaRodada(aposta){
+  setTimeout(() => { mostrarCartaComunitaria() }, 1000)
+  setTimeout(() => {
+    apostar().then((aposta) => {
+      finalizar()
+    })
+  }, 2100)
 }
