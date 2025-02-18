@@ -30,6 +30,8 @@ var cartasMesaAmostra = 0
 const mesaComunitaria = document.getElementById("cartasComunitarias")
 const mesa = document.getElementById("mesa")
 var qtdeApostas = 0
+var valorApostaRodada = 0
+var poteAposta = 0
 
 
 for (let c = 0; c < qtdeJogadores; c++) {
@@ -55,6 +57,9 @@ for (let c = 0; c < qtdeJogadores; c++) {
 novaRodada()
 
 function novaRodada() {
+
+  poteAposta = 0
+  valorApostaRodada = 0
 
   for (let c = 0; c < qtdeJogadores; c++) {
     cartasJogadores.push([])
@@ -699,22 +704,40 @@ async function apostar() {
 }
 
 function realizarAposta(idJogador) {
-
+  valorApostaRodada = 10
   return new Promise((resolve, reject) => {
+    console.log(`Pote: ${poteAposta}`)
     if (idJogador == 0) {
       setTimeout(() => {
         telaDeApostaUsuario()
-      let botaoAposta = document.querySelector("#botaoAposta")
-      botaoAposta.addEventListener("click", () => {
 
+      let botaoApostaCall = document.querySelector("#botaoApostaCall")
+      botaoApostaCall.addEventListener("click", () => {
+        console.log("Call")
+        poteAposta += valorApostaRodada
         document.querySelector("#telaAposta").classList.remove("mostrarTelaAposta")
         resolve("Eu apostei")
       }, { once: true })
+
+      let botaoApostaFold = document.querySelector("#botaoApostaFold")
+      botaoApostaFold.addEventListener("click", () => {
+        console.log("Fold")
+        document.querySelector("#telaAposta").classList.remove("mostrarTelaAposta")
+        resolve("Eu apostei")
+      }, { once: true })
+
+      let botaoApostaRaise = document.querySelector("#botaoApostaRaise")
+      botaoApostaRaise.addEventListener("click", () => {
+        console.log("Raise")
+        document.querySelector("#telaAposta").classList.remove("mostrarTelaAposta")
+        resolve("Eu apostei")
+      }, { once: true })
+      
       }, 1000)
       
     } else {
+      poteAposta += valorApostaRodada
       resolve("Apostado")
-
     }
   })
 
