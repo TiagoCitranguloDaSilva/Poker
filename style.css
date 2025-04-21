@@ -4,6 +4,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  user-select: none;
 }
 
 :root{
@@ -47,6 +48,7 @@ main{
   flex-direction: column;
   text-align: center;
   gap: .5em;
+  padding: .2em .5em;
 }
 
 .maoJogador{
@@ -83,6 +85,14 @@ main.finalizado .jogador:not(.vencedor) .maoJogador{
 main.finalizado .vencedor .maoJogador{
   transform: scale(1.05);
   transition: .5s;
+}
+
+.desistiu{
+  filter: grayscale(100%);
+  background-color: rgba(128, 128, 128, 0.655);
+  border-radius: 10px;
+  transform: scale(0.88);
+  transition: .3s;
 }
 
 #jogador0{
@@ -183,13 +193,41 @@ main.finalizado .vencedor .maoJogador{
   left: 0;
   width: 100svw;
   height: 100svh;
-  background-color: red;
+  backdrop-filter: blur(3px);
+  align-items: center;
+  justify-content: center;
 }
 
 .mostrarTelaAposta{
 
   display: flex !important;
 
+}
+
+#botoesContainer{
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ gap: 2em;
+ width: 100%;
+ max-width: 600px;
+ padding: 1em;
+}
+
+#botoesContainer button{
+  font-size: 1.8rem;
+  width: 5em;
+  height: 2em;
+  border-radius: 5px;
+  background-color: #8ab4f8;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#botoesContainer button:hover{
+  transform: scale(1.05);
+  transition: .2s;
 }
 
 

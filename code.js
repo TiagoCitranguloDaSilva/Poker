@@ -24,6 +24,7 @@ var elementosMaoJogadores = []
 var dadosJogadores = []
 var dadosExtrasJogadores = []
 var combinacaoJogadores = []
+var jogadoresJogando = []
 
 var cartasMesa = []
 var cartasMesaAmostra = 0
@@ -51,6 +52,8 @@ for (let c = 0; c < qtdeJogadores; c++) {
   jogador.appendChild(containerCombinacao)
 
   mesa.appendChild(jogador)
+
+  jogadoresJogando.push(true);
 
 }
 
@@ -200,7 +203,25 @@ function verificacoesCombinacoes() {
     let cartasFlush = []
 
 
+    if(jogadoresJogando[jogador] == false){
 
+      dadosJogadores[jogador] = [
+        ["existeRoyalFlush", false],
+        ["existeStraightFlush", false],
+        ["qtdeQuadras", 0],
+        ["existeFullHouse", false],
+        ["existeFlush", false],
+        ["existeStraight", false],
+        ["qtdeTrincas", 0],
+        ["existeDoisPares", false],
+        ["qtdePares", 0],
+        ["highCard", "A"]
+      ]
+      continue;
+    }else{
+      console.log(jogadoresJogando[jogador])
+    }
+    console.log(jogadoresJogando);
 
     let cartasJogador = []
 
@@ -611,6 +632,11 @@ function mostrarCombinacaoMaisForte() {
     let elementoMao = elementosMaoJogadores[c].parentNode.querySelector(".combinacao")
     let achouCombinacao = false
 
+    if(jogadoresJogando[c] == false){
+      elementoMao.innerText = "Folded";
+      continue;
+    }
+
     for (let d = 0; d < dadosJogadores[c].length - 1; d++) {
 
       if (dadosJogadores[c][d][1]) {
@@ -704,10 +730,10 @@ async function apostar() {
 }
 
 function realizarAposta(idJogador) {
-  valorApostaRodada = 10
   return new Promise((resolve, reject) => {
+    valorApostaRodada = 10
     console.log(`Pote: ${poteAposta}`)
-    if (idJogador == 0) {
+    if (idJogador == 0 && jogadoresJogando[idJogador]) {
       setTimeout(() => {
         telaDeApostaUsuario()
 
@@ -721,9 +747,10 @@ function realizarAposta(idJogador) {
 
       let botaoApostaFold = document.querySelector("#botaoApostaFold")
       botaoApostaFold.addEventListener("click", () => {
-        console.log("Fold")
+        fold(idJogador)
         document.querySelector("#telaAposta").classList.remove("mostrarTelaAposta")
-        resolve("Eu apostei")
+        resolve("Eu dei fold")
+        
       }, { once: true })
 
       let botaoApostaRaise = document.querySelector("#botaoApostaRaise")
@@ -739,6 +766,7 @@ function realizarAposta(idJogador) {
       poteAposta += valorApostaRodada
       resolve("Apostado")
     }
+    console.log(dadosExtrasJogadores)
   })
 
 }
@@ -783,4 +811,21 @@ function quartaRodada(aposta){
       finalizar()
     })
   }, 2100)
+}
+
+function fold(idJogador){
+  jogadoresJogando[idJogador] = false
+  console.log(idJogador)
+  if (!document.querySelector(`#jogador${idJogador}`).children[0].classList.contains('mostrar')) {
+    setTimeout(() => { document.querySelector(`#jogador${idJogador}`).children[0].children[0].classList.add('mostrar') }, 300)
+    setTimeout(() => { document.querySelector(`#jogador${idJogador}`).children[0].children[1].classList.add('mostrar') }, 400)
+    setTimeout(() => {
+      verificacoesCombinacoes()
+      mostrarCombinacaoMaisForte()
+    }, 500)
+    
+    setTimeout(() => {
+      document.querySelector(`#jogador${idJogador}`).classList.add('desistiu');
+    }, 900);
+  }
 }
