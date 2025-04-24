@@ -34,6 +34,8 @@ var qtdeApostas = 0
 var valorApostaRodada = 0
 var poteAposta = 0
 
+var ultimoJogadorAposta;
+
 
 for (let c = 0; c < qtdeJogadores; c++) {
 
@@ -718,61 +720,75 @@ function finalizar() {
 
 async function apostar() {
   let aposta = []
+  ultimoJogadorAposta = qtdeJogadores
   let contagem = 0
-  while (contagem < qtdeJogadores) {
+  while (contagem != ultimoJogadorAposta) {
     let apostaAtual = await realizarAposta(contagem);
     if (apostaAtual) {
       aposta.push(apostaAtual);
       contagem++;
       await new Promise(resolve => setTimeout(resolve, 1200))
     }
+    if(contagem == qtdeJogadores && ultimoJogadorAposta != qtdeJogadores){
+      contagem = 0;
+    }
+    console.log(`Contagem: ${contagem}`)
   }
+  console.log("FInalizou")
 }
 
 function realizarAposta(idJogador) {
   return new Promise((resolve, reject) => {
-    valorApostaRodada = 10
+    valorApostaRodada = valorApostaRodada == 0 ?  10 : valorApostaRodada;
+
     console.log(`Pote: ${poteAposta}`)
     if (idJogador == 0 && jogadoresJogando[idJogador]) {
       setTimeout(() => {
         telaDeApostaUsuario()
 
-      let botaoApostaCall = document.querySelector("#botaoApostaCall")
-      botaoApostaCall.addEventListener("click", () => {
-        console.log("Call")
-        poteAposta += valorApostaRodada
-        document.querySelector("#telaAposta").classList.remove("mostrarTelaAposta")
-        resolve("Eu apostei")
-      }, { once: true })
+        let botaoApostaCall = document.querySelector("#botaoApostaCall")
+        botaoApostaCall.addEventListener("click", () => {
+          call()
+          document.querySelector("#telaAposta").classList.remove("mostrarTelaAposta")
+          resolve("Eu apostei")
+        }, { once: true })
 
-      let botaoApostaFold = document.querySelector("#botaoApostaFold")
-      botaoApostaFold.addEventListener("click", () => {
-        fold(idJogador)
-        document.querySelector("#telaAposta").classList.remove("mostrarTelaAposta")
-        resolve("Eu dei fold")
-        
-      }, { once: true })
+        let botaoApostaFold = document.querySelector("#botaoApostaFold")
+        botaoApostaFold.addEventListener("click", () => {
+          fold(idJogador)
+          document.querySelector("#telaAposta").classList.remove("mostrarTelaAposta")
+          resolve("Eu dei fold")
+          
+        }, { once: true })
 
-      let botaoApostaRaise = document.querySelector("#botaoApostaRaise")
-      botaoApostaRaise.addEventListener("click", () => {
-        console.log("Raise")
-        document.querySelector("#telaAposta").classList.remove("mostrarTelaAposta")
-        resolve("Eu apostei")
-      }, { once: true })
+        let botaoApostaRaise = document.querySelector("#botaoApostaRaise")
+        botaoApostaRaise.addEventListener("click", () => {
+          console.log("Raise")
+          raise(idJogador)
+          telaAumentarApostaUsuario()
+          document.querySelector("#telaAposta").classList.remove("mostrarTelaAposta")
+          // resolve("Eu apostei")
+        }, { once: true })
       
       }, 1000)
       
-    } else {
-      poteAposta += valorApostaRodada
+    } else if(idJogador == 2) {
+      resolve("Raised")
+      raise(idJogador)
+    }else {
+      call()
       resolve("Apostado")
     }
-    console.log(dadosExtrasJogadores)
   })
 
 }
 
 function telaDeApostaUsuario() {
   document.querySelector("#telaAposta").classList.add("mostrarTelaAposta")
+}
+
+function telaAumentarApostaUsuario(){
+  document.querySelector("#telaRaise").classList.add('mostrarTelaRaise')
 }
 
 function segundaRodada(aposta) {
@@ -828,4 +844,14 @@ function fold(idJogador){
       document.querySelector(`#jogador${idJogador}`).classList.add('desistiu');
     }, 900);
   }
+}
+
+function raise(idJogador){
+  ultimoJogadorAposta = idJogador;
+  valorApostaRodada += 20
+  poteAposta += valorApostaRodada
+}
+
+function call(){
+  poteAposta += valorApostaRodada
 }

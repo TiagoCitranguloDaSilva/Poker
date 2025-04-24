@@ -186,7 +186,7 @@ main.finalizado .vencedor .maoJogador{
   transition: 1s;
 }
 
-#telaAposta{
+#telaAposta, #telaRaise{
   display: none;
   position: absolute;
   top: 0;
@@ -198,11 +198,11 @@ main.finalizado .vencedor .maoJogador{
   justify-content: center;
 }
 
-.mostrarTelaAposta{
 
+.mostrarTelaAposta, .mostrarTelaRaise{
   display: flex !important;
-
 }
+
 
 #botoesContainer{
  display: flex;
