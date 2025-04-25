@@ -30,8 +30,8 @@ var cartasMesa = []
 var cartasMesaAmostra = 0
 const mesaComunitaria = document.getElementById("cartasComunitarias")
 const mesa = document.getElementById("mesa")
-var qtdeApostas = 0
 var valorApostaRodada = 0
+var valorApostaRodadaMinimo = 0
 var poteAposta = 0
 
 var ultimoJogadorAposta;
@@ -55,7 +55,7 @@ for (let c = 0; c < qtdeJogadores; c++) {
 
   mesa.appendChild(jogador)
 
-  jogadoresJogando.push(true);
+  
 
 }
 
@@ -63,10 +63,12 @@ novaRodada()
 
 function novaRodada() {
 
-  poteAposta = 0
-  valorApostaRodada = 0
+  resetarDados()
 
+  
+  
   for (let c = 0; c < qtdeJogadores; c++) {
+    jogadoresJogando.push(true);
     cartasJogadores.push([])
 
     elementosMaoJogadores.push(document.getElementById(`maoJogador${c}`))
@@ -94,7 +96,6 @@ function novaRodada() {
 
 
 }
-
 
 function darCartasJogadores() {
 
@@ -205,7 +206,7 @@ function verificacoesCombinacoes() {
     let cartasFlush = []
 
 
-    if(jogadoresJogando[jogador] == false){
+    if (jogadoresJogando[jogador] == false) {
 
       dadosJogadores[jogador] = [
         ["existeRoyalFlush", false],
@@ -220,7 +221,7 @@ function verificacoesCombinacoes() {
         ["highCard", "A"]
       ]
       continue;
-    }else{
+    } else {
       console.log(jogadoresJogando[jogador])
     }
     console.log(jogadoresJogando);
@@ -634,7 +635,7 @@ function mostrarCombinacaoMaisForte() {
     let elementoMao = elementosMaoJogadores[c].parentNode.querySelector(".combinacao")
     let achouCombinacao = false
 
-    if(jogadoresJogando[c] == false){
+    if (jogadoresJogando[c] == false) {
       elementoMao.innerText = "Folded";
       continue;
     }
@@ -707,13 +708,18 @@ function finalizar() {
 
   });
 
-  setInterval(() => {
+  setTimeout(() => {
     document.querySelector('main').classList.add('finalizado')
 
     ordemGanhadores[0][1].forEach(idJogador => {
       document.querySelector(`#jogador${idJogador}`).classList.add("vencedor")
     });
   }, 2000)
+
+
+  setTimeout(() => {
+    novaRodada()
+  }, 5000);
 
 
 }
@@ -729,7 +735,7 @@ async function apostar() {
       contagem++;
       await new Promise(resolve => setTimeout(resolve, 1200))
     }
-    if(contagem == qtdeJogadores && ultimoJogadorAposta != qtdeJogadores){
+    if (contagem == qtdeJogadores && ultimoJogadorAposta != qtdeJogadores) {
       contagem = 0;
     }
     console.log(`Contagem: ${contagem}`)
@@ -739,7 +745,7 @@ async function apostar() {
 
 function realizarAposta(idJogador) {
   return new Promise((resolve, reject) => {
-    valorApostaRodada = valorApostaRodada == 0 ?  10 : valorApostaRodada;
+    valorApostaRodada = valorApostaRodada == 0 ? 10 : valorApostaRodada;
 
     console.log(`Pote: ${poteAposta}`)
     if (idJogador == 0 && jogadoresJogando[idJogador]) {
@@ -758,7 +764,7 @@ function realizarAposta(idJogador) {
           fold(idJogador)
           document.querySelector("#telaAposta").classList.remove("mostrarTelaAposta")
           resolve("Eu dei fold")
-          
+
         }, { once: true })
 
         let botaoApostaRaise = document.querySelector("#botaoApostaRaise")
@@ -769,13 +775,16 @@ function realizarAposta(idJogador) {
           document.querySelector("#telaAposta").classList.remove("mostrarTelaAposta")
           // resolve("Eu apostei")
         }, { once: true })
-      
+
+        let botaoFinalizarRaise = document.querySelector("#finalizarRaiseButton")
+        botaoFinalizarRaise.addEventListener('click', () => {
+          document.querySelector("#telaRaise").classList.remove('mostrarTelaRaise')
+          poteAposta += valorApostaRodada
+          resolve("Raised")
+        }, { once: true })
       }, 1000)
-      
-    } else if(idJogador == 2) {
-      resolve("Raised")
-      raise(idJogador)
-    }else {
+
+    } else {
       call()
       resolve("Apostado")
     }
@@ -785,10 +794,15 @@ function realizarAposta(idJogador) {
 
 function telaDeApostaUsuario() {
   document.querySelector("#telaAposta").classList.add("mostrarTelaAposta")
+  if (!document.querySelector('#finalizarRaiseButton').classList.contains('disabled')) {
+    document.querySelector('#finalizarRaiseButton').classList.add('disabled')
+    document.querySelector('#finalizarRaiseButton').disabled = true
+  }
 }
 
-function telaAumentarApostaUsuario(){
+function telaAumentarApostaUsuario() {
   document.querySelector("#telaRaise").classList.add('mostrarTelaRaise')
+  atualizarContadorRaise()
 }
 
 function segundaRodada(aposta) {
@@ -811,7 +825,7 @@ function segundaRodada(aposta) {
   }, 2100)
 }
 
-function terceiraRodada(aposta){
+function terceiraRodada(aposta) {
   setTimeout(() => { mostrarCartaComunitaria() }, 1000)
   setTimeout(() => {
     apostar().then((aposta) => {
@@ -820,7 +834,7 @@ function terceiraRodada(aposta){
   }, 2100)
 }
 
-function quartaRodada(aposta){
+function quartaRodada(aposta) {
   setTimeout(() => { mostrarCartaComunitaria() }, 1000)
   setTimeout(() => {
     apostar().then((aposta) => {
@@ -829,7 +843,7 @@ function quartaRodada(aposta){
   }, 2100)
 }
 
-function fold(idJogador){
+function fold(idJogador) {
   jogadoresJogando[idJogador] = false
   console.log(idJogador)
   if (!document.querySelector(`#jogador${idJogador}`).children[0].classList.contains('mostrar')) {
@@ -839,19 +853,113 @@ function fold(idJogador){
       verificacoesCombinacoes()
       mostrarCombinacaoMaisForte()
     }, 500)
-    
+
     setTimeout(() => {
       document.querySelector(`#jogador${idJogador}`).classList.add('desistiu');
     }, 900);
   }
 }
 
-function raise(idJogador){
+function raise(idJogador) {
+  valorApostaRodadaMinimo = valorApostaRodada
   ultimoJogadorAposta = idJogador;
-  valorApostaRodada += 20
+  if (idJogador != 0) {
+    valorApostaRodada += 20
+    poteAposta += valorApostaRodada
+  }
+}
+
+function call() {
   poteAposta += valorApostaRodada
 }
 
-function call(){
-  poteAposta += valorApostaRodada
+function atualizarContadorRaise() {
+  document.querySelector("#raiseContador").innerText = `R$ ${valorApostaRodada}`
+}
+
+function aumentarApostaRodada() {
+  valorApostaRodada += 10
+  atualizarContadorRaise()
+
+
+  if (valorApostaRodada == valorApostaRodadaMinimo) {
+    if (!document.querySelector('#finalizarRaiseButton').classList.contains('disabled')) {
+      document.querySelector('#finalizarRaiseButton').classList.add('disabled')
+      document.querySelector('#finalizarRaiseButton').disabled = true
+    }
+  } else {
+    if (document.querySelector('#finalizarRaiseButton').classList.contains('disabled')) {
+      document.querySelector('#finalizarRaiseButton').classList.remove('disabled')
+      document.querySelector('#finalizarRaiseButton').disabled = false
+    }
+  }
+
+
+}
+
+function diminuirApostaRodada() {
+  if (valorApostaRodada - 10 >= valorApostaRodadaMinimo) {
+    valorApostaRodada -= 10
+  }
+
+  if (valorApostaRodada == valorApostaRodadaMinimo) {
+    if (!document.querySelector('#finalizarRaiseButton').classList.contains('disabled')) {
+      document.querySelector('#finalizarRaiseButton').classList.add('disabled')
+      document.querySelector('#finalizarRaiseButton').disabled = true
+    }
+  } else {
+    if (document.querySelector('#finalizarRaiseButton').classList.contains('disabled')) {
+      document.querySelector('#finalizarRaiseButton').classList.remove('disabled')
+      document.querySelector('#finalizarRaiseButton').disabled = false
+    }
+  }
+
+  atualizarContadorRaise()
+}
+
+function resetarDados() {
+
+  poteAposta = 0
+  valorApostaRodada = 0
+  cartasMesaAmostra = 0
+
+
+  cartasJogadores = []
+  elementosMaoJogadores = []
+  dadosJogadores = []
+  dadosExtrasJogadores = []
+  combinacaoJogadores = []
+  cartasMesa = []
+  jogadoresJogando = []
+  cartas = []
+
+  naipes = ["Espadas", "Copas", "Ouros", "Paus"]
+
+  let jogadores = document.querySelectorAll('.jogador')
+
+  jogadores.forEach(jogador => {
+    jogador.children[0].innerHTML = ''
+    jogador.children[1].innerHTML = ''
+    if(jogador.classList.contains('desistiu')){
+      jogador.classList.remove('desistiu')
+    }
+  });
+
+  mesaComunitaria.innerHTML = ''
+
+  if(document.querySelector('main').classList.contains('finalizado')){
+    document.querySelector('main').classList.remove('finalizado')
+  }
+
+  for(let c = 0; c < qtdeJogadores; c++){
+
+    if(document.querySelector(`#jogador${c}`).classList.contains('vencedor')){
+      document.querySelector(`#jogador${c}`).classList.remove("vencedor")
+    }
+    
+    
+  }
+
+
+
 }

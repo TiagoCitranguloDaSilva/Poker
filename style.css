@@ -12,6 +12,7 @@
   --corFundo: #5685d0;
   --corCarta: #ffffff;
   --corCombinacao: #8ab4f8;
+  --corRaiseContadorContainer: #7ca2de;
 
 }
 
@@ -178,9 +179,6 @@ main.finalizado .vencedor .maoJogador{
   background-image: url("imgs/paus-pronto.png");
 }
 
-
-
-
 .mostrar{
   transform: rotateY(180deg);
   transition: 1s;
@@ -228,6 +226,112 @@ main.finalizado .vencedor .maoJogador{
 #botoesContainer button:hover{
   transform: scale(1.05);
   transition: .2s;
+}
+
+#raiseContadorContainer{
+  background-color: var(--corRaiseContadorContainer);
+  padding: 1.2em 2em;
+  border-radius: 8px;
+  border: solid 7px #5177b3;
+  box-shadow: 3px 3px 3px rgba(0, 0, 0, .13);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1em;
+}
+
+#containerPrincipal{
+  display: grid;
+  grid-template-columns: 1fr 8em;
+  gap: 1em;
+}
+
+#raiseContador{
+  font-size: 3rem;
+  background-color: #6092e0;
+  border: 2px solid #4777c5;
+  color: white;
+  min-width: 3.5em;
+  height: 2em;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+}
+
+#botoesRaiseContainer{
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: .5em;
+}
+
+#botoesRaiseContainer button{
+  background-color: #6092e0;
+  border: 2px solid #4777c5;
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#botoesRaiseContainer button:hover{
+  transform: scale(1.05);
+  transition: .3s;
+}
+
+#containerAuxiliar{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#botoesRaiseAuxiliar{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1em;
+}
+
+#botoesRaiseAuxiliar button{
+  background-color: #699aeb;
+  border: 2px solid #4f84d8;
+  color: white;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: .5em;
+  width: 4.2em;
+  min-height: max-content;
+}
+
+#botoesRaiseAuxiliar button:hover{
+  transform: scale(1.05);
+  transition: .3s;
+}
+
+#finalizarRaiseButton{
+  font-size: 1.8rem;
+  padding: .2em .4em;
+  background-color: #5481ca;
+  border: 2px solid #2f5594;
+  color: white;
+  border-radius: 7px;
+  cursor: pointer;
+  margin-top: 0.5em;
+}
+
+#finalizarRaiseButton.disabled{
+  filter: grayscale(52%);
+  cursor: auto;
+}
+
+#finalizarRaiseButton:not(.disabled):hover{
+  transform: scale(1.05);
+  transition: .3s;
 }
 
 
