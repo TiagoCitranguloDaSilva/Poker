@@ -25,6 +25,8 @@ var dadosJogadores = []
 var dadosExtrasJogadores = []
 var combinacaoJogadores = []
 var jogadoresJogando = []
+var saldoJogadores = []
+var jogadoresPerderam = []
 
 var cartasMesa = []
 var cartasMesaAmostra = 0
@@ -33,6 +35,7 @@ const mesa = document.getElementById("mesa")
 var valorApostaRodada = 0
 var valorApostaRodadaMinimo = 0
 var poteAposta = 0
+var valorSaldoInicio = 1000
 
 var ultimoJogadorAposta;
 
@@ -50,12 +53,16 @@ for (let c = 0; c < qtdeJogadores; c++) {
   let containerCombinacao = document.createElement("div")
   containerCombinacao.classList.add("combinacao")
 
+  let saldo = document.createElement('div')
+  saldo.classList.add('saldo')
+
   jogador.appendChild(maoJogador)
   jogador.appendChild(containerCombinacao)
+  jogador.appendChild(saldo)
 
   mesa.appendChild(jogador)
 
-  
+
 
 }
 
@@ -63,14 +70,14 @@ novaRodada()
 
 function novaRodada() {
 
+  
+
   resetarDados()
 
-  
-  
   for (let c = 0; c < qtdeJogadores; c++) {
     jogadoresJogando.push(true);
     cartasJogadores.push([])
-
+    saldoJogadores.push(valorSaldoInicio)
     elementosMaoJogadores.push(document.getElementById(`maoJogador${c}`))
 
     dadosJogadores.push([])
@@ -78,15 +85,25 @@ function novaRodada() {
     combinacaoJogadores.push([])
   }
 
+  mostrarDadosTela()
+
   for (let c = 0; c < naipes.length; c++) {
     cartas.push(simboloCartas.slice())
+  }
+
+  validarSaldo()
+
+  if(jogadoresPerderam.filter(jogadorPerdeu => jogadorPerdeu === false).length == 1){
+    setTimeout(() => {
+      window.location.reload()
+    }, 1000);
   }
 
   darCartasJogadores()
   darCartasComunitarias()
 
-  apostar().then((aposta) => {
-    segundaRodada(aposta)
+  apostar().then(() => {
+    segundaRodada()
   })
 
 
@@ -100,6 +117,9 @@ function novaRodada() {
 function darCartasJogadores() {
 
   for (let c = 0; c < qtdeJogadores; c++) {
+    if(jogadoresPerderam[c]){
+      continue;
+    }
     for (let d = 0; d < 2; d++) {
       let cartaEscolhida = cartaAleatoria()
       cartasJogadores[c].push(cartaEscolhida)
@@ -221,10 +241,7 @@ function verificacoesCombinacoes() {
         ["highCard", "A"]
       ]
       continue;
-    } else {
-      console.log(jogadoresJogando[jogador])
     }
-    console.log(jogadoresJogando);
 
     let cartasJogador = []
 
@@ -636,6 +653,9 @@ function mostrarCombinacaoMaisForte() {
     let achouCombinacao = false
 
     if (jogadoresJogando[c] == false) {
+      if (jogadoresPerderam[c]) {
+        continue;
+      }
       elementoMao.innerText = "Folded";
       continue;
     }
@@ -671,6 +691,9 @@ function finalizar() {
   for (let c = 0; c < ordemCombinacoes.length; c++) {
 
     for (let d = 0; d < combinacaoJogadores.length; d++) {
+      if (!jogadoresJogando[d]) {
+        continue;
+      }
 
       if (ordemCombinacoes[c] == combinacaoJogadores[d]) {
 
@@ -695,7 +718,7 @@ function finalizar() {
   elementosMaoJogadores.forEach(maoJogadores => {
 
 
-    if (!maoJogadores.children[0].classList.contains('mostrar')) {
+    if (maoJogadores.children[0] && !maoJogadores.children[0].classList.contains('mostrar')) {
       setTimeout(() => { maoJogadores.children[0].classList.add('mostrar') }, 300)
       setTimeout(() => { maoJogadores.children[1].classList.add('mostrar') }, 400)
       setTimeout(() => {
@@ -712,8 +735,14 @@ function finalizar() {
     document.querySelector('main').classList.add('finalizado')
 
     ordemGanhadores[0][1].forEach(idJogador => {
-      document.querySelector(`#jogador${idJogador}`).classList.add("vencedor")
+      if(jogadoresJogando[idJogador]){
+        document.querySelector(`#jogador${idJogador}`).classList.add("vencedor")
+        saldoJogadores[idJogador] += Math.ceil(poteAposta / ordemGanhadores[0][1].length)
+      }
+
     });
+
+    mostrarDadosTela()
   }, 2000)
 
 
@@ -725,41 +754,42 @@ function finalizar() {
 }
 
 async function apostar() {
-  let aposta = []
   ultimoJogadorAposta = qtdeJogadores
   let contagem = 0
   while (contagem != ultimoJogadorAposta) {
     let apostaAtual = await realizarAposta(contagem);
+    mostrarDadosTela()
     if (apostaAtual) {
-      aposta.push(apostaAtual);
       contagem++;
       await new Promise(resolve => setTimeout(resolve, 1200))
     }
     if (contagem == qtdeJogadores && ultimoJogadorAposta != qtdeJogadores) {
       contagem = 0;
     }
-    console.log(`Contagem: ${contagem}`)
   }
-  console.log("FInalizou")
 }
 
 function realizarAposta(idJogador) {
   return new Promise((resolve, reject) => {
     valorApostaRodada = valorApostaRodada == 0 ? 10 : valorApostaRodada;
 
-    console.log(`Pote: ${poteAposta}`)
     if (idJogador == 0 && jogadoresJogando[idJogador]) {
       setTimeout(() => {
         telaDeApostaUsuario()
 
+
         let botaoApostaCall = document.querySelector("#botaoApostaCall")
+        botaoApostaCall.replaceWith(botaoApostaCall.cloneNode(true));
+        botaoApostaCall = document.querySelector("#botaoApostaCall");
         botaoApostaCall.addEventListener("click", () => {
-          call()
+          call(idJogador)
           document.querySelector("#telaAposta").classList.remove("mostrarTelaAposta")
           resolve("Eu apostei")
         }, { once: true })
 
-        let botaoApostaFold = document.querySelector("#botaoApostaFold")
+        let botaoApostaFold = document.querySelector("#botaoApostaFold");
+        botaoApostaFold.replaceWith(botaoApostaFold.cloneNode(true));
+        botaoApostaFold = document.querySelector("#botaoApostaFold");
         botaoApostaFold.addEventListener("click", () => {
           fold(idJogador)
           document.querySelector("#telaAposta").classList.remove("mostrarTelaAposta")
@@ -768,25 +798,30 @@ function realizarAposta(idJogador) {
         }, { once: true })
 
         let botaoApostaRaise = document.querySelector("#botaoApostaRaise")
+        botaoApostaRaise.replaceWith(botaoApostaRaise.cloneNode(true));
+        botaoApostaRaise = document.querySelector("#botaoApostaRaise");
         botaoApostaRaise.addEventListener("click", () => {
-          console.log("Raise")
           raise(idJogador)
           telaAumentarApostaUsuario()
           document.querySelector("#telaAposta").classList.remove("mostrarTelaAposta")
-          // resolve("Eu apostei")
         }, { once: true })
 
         let botaoFinalizarRaise = document.querySelector("#finalizarRaiseButton")
+        botaoFinalizarRaise.replaceWith(botaoFinalizarRaise.cloneNode(true));
+        botaoFinalizarRaise = document.querySelector("#finalizarRaiseButton");
         botaoFinalizarRaise.addEventListener('click', () => {
           document.querySelector("#telaRaise").classList.remove('mostrarTelaRaise')
           poteAposta += valorApostaRodada
+          saldoJogadores[idJogador] -= valorApostaRodada
           resolve("Raised")
         }, { once: true })
       }, 1000)
 
-    } else {
-      call()
+    } else if (jogadoresJogando[idJogador]) {
+      call(idJogador)
       resolve("Apostado")
+    } else {
+      resolve("folded")
     }
   })
 
@@ -805,10 +840,10 @@ function telaAumentarApostaUsuario() {
   atualizarContadorRaise()
 }
 
-function segundaRodada(aposta) {
+function segundaRodada() {
   let cartasJogadorPrincipal = elementosMaoJogadores[0].children
-  setTimeout(() => { cartasJogadorPrincipal[0].classList.add('mostrar') }, 700)
-  setTimeout(() => { cartasJogadorPrincipal[1].classList.add('mostrar') }, 800)
+  setTimeout(() => { cartasJogadorPrincipal[0] ? cartasJogadorPrincipal[0].classList.add('mostrar') : null }, 700)
+  setTimeout(() => { cartasJogadorPrincipal[1] ? cartasJogadorPrincipal[1].classList.add('mostrar') : null }, 800)
 
   setTimeout(() => {
     verificacoesCombinacoes()
@@ -819,25 +854,25 @@ function segundaRodada(aposta) {
   setTimeout(() => { mostrarCartaComunitaria() }, 1600)
   setTimeout(() => { mostrarCartaComunitaria() }, 1700)
   setTimeout(() => {
-    apostar().then((aposta) => {
-      terceiraRodada(aposta)
+    apostar().then(() => {
+      terceiraRodada()
     })
   }, 2100)
 }
 
-function terceiraRodada(aposta) {
+function terceiraRodada() {
   setTimeout(() => { mostrarCartaComunitaria() }, 1000)
   setTimeout(() => {
-    apostar().then((aposta) => {
-      quartaRodada(aposta)
+    apostar().then(() => {
+      quartaRodada()
     })
   }, 2100)
 }
 
-function quartaRodada(aposta) {
+function quartaRodada() {
   setTimeout(() => { mostrarCartaComunitaria() }, 1000)
   setTimeout(() => {
-    apostar().then((aposta) => {
+    apostar().then(() => {
       finalizar()
     })
   }, 2100)
@@ -845,7 +880,6 @@ function quartaRodada(aposta) {
 
 function fold(idJogador) {
   jogadoresJogando[idJogador] = false
-  console.log(idJogador)
   if (!document.querySelector(`#jogador${idJogador}`).children[0].classList.contains('mostrar')) {
     setTimeout(() => { document.querySelector(`#jogador${idJogador}`).children[0].children[0].classList.add('mostrar') }, 300)
     setTimeout(() => { document.querySelector(`#jogador${idJogador}`).children[0].children[1].classList.add('mostrar') }, 400)
@@ -866,11 +900,13 @@ function raise(idJogador) {
   if (idJogador != 0) {
     valorApostaRodada += 20
     poteAposta += valorApostaRodada
+    saldoJogadores[idJogador] -= valorApostaRodada
   }
 }
 
-function call() {
+function call(idJogador) {
   poteAposta += valorApostaRodada
+  saldoJogadores[idJogador] -= valorApostaRodada
 }
 
 function atualizarContadorRaise() {
@@ -878,7 +914,10 @@ function atualizarContadorRaise() {
 }
 
 function aumentarApostaRodada() {
-  valorApostaRodada += 10
+  if (valorApostaRodada + 5 > saldoJogadores[0]) {
+    return
+  }
+  valorApostaRodada += 5
   atualizarContadorRaise()
 
 
@@ -898,8 +937,8 @@ function aumentarApostaRodada() {
 }
 
 function diminuirApostaRodada() {
-  if (valorApostaRodada - 10 >= valorApostaRodadaMinimo) {
-    valorApostaRodada -= 10
+  if (valorApostaRodada - 5 >= valorApostaRodadaMinimo) {
+    valorApostaRodada -= 5
   }
 
   if (valorApostaRodada == valorApostaRodadaMinimo) {
@@ -932,6 +971,7 @@ function resetarDados() {
   cartasMesa = []
   jogadoresJogando = []
   cartas = []
+  jogadoresPerderam = []
 
   naipes = ["Espadas", "Copas", "Ouros", "Paus"]
 
@@ -940,26 +980,50 @@ function resetarDados() {
   jogadores.forEach(jogador => {
     jogador.children[0].innerHTML = ''
     jogador.children[1].innerHTML = ''
-    if(jogador.classList.contains('desistiu')){
+    if (jogador.classList.contains('desistiu')) {
       jogador.classList.remove('desistiu')
     }
   });
 
   mesaComunitaria.innerHTML = ''
 
-  if(document.querySelector('main').classList.contains('finalizado')){
+  if (document.querySelector('main').classList.contains('finalizado')) {
     document.querySelector('main').classList.remove('finalizado')
   }
 
-  for(let c = 0; c < qtdeJogadores; c++){
+  for (let c = 0; c < qtdeJogadores; c++) {
 
-    if(document.querySelector(`#jogador${c}`).classList.contains('vencedor')){
+    jogadoresPerderam.push(false)
+
+    if (document.querySelector(`#jogador${c}`).classList.contains('vencedor')) {
       document.querySelector(`#jogador${c}`).classList.remove("vencedor")
     }
-    
-    
+
+
   }
 
 
 
+}
+
+function mostrarDadosTela() {
+  document.querySelector("#pote .valor").innerHTML = `R$ ${poteAposta}`
+  document.querySelector("#apostaRodada .valor").innerHTML = `R$ ${valorApostaRodada}`
+
+  for (let c = 0; c < qtdeJogadores; c++) {
+    document.querySelector(`#jogador${c} .saldo`).innerHTML = `Saldo: R$ ${saldoJogadores[c]}`
+  }
+}
+
+function validarSaldo() {
+  for (let c = 0; c < qtdeJogadores; c++) {
+    if (saldoJogadores[c] <= 0) {
+      document.querySelector(`#jogador${c}`).classList.add('desistiu')
+      saldoJogadores[c] = 0
+      jogadoresJogando[c] = false
+      jogadoresPerderam[c] = true
+      document.querySelector(`#jogador${c} .combinacao`).innerHTML = "Perdeu"
+      mostrarDadosTela()
+    }
+  }
 }
