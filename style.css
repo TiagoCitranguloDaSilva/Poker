@@ -484,6 +484,12 @@ main.finalizado .vencedor .maoJogador{
   .saldo{
     font-size: .8rem;
   }
+
+  #cartasComunitarias .carta{
+    width: 1.4em;
+    height: 2em;
+    font-size: 2.6rem;
+  }
 }
 
 
